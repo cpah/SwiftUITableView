@@ -17,9 +17,9 @@ struct ContentView: View {
     var body: some View {
         VStack {
             HStack {
-                Button("Refresh") {
+                Button("Populate") {
                     names = getNames()
-                    selectedRow = 0
+                    selectedRow = names.count - 1
                 }
                 Button("Clear") {
                     names.removeAll()
@@ -38,10 +38,6 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
-        .onAppear(perform: {
-            names = getNames()
-            selectedRow = 0
-        })
         .onReceive(newRowSelected, perform: {_ in
             selectedRow = newSelectedRow
         })
@@ -63,6 +59,7 @@ struct TableVC: NSViewControllerRepresentable {
     func updateNSViewController(_ nsViewController: TableViewController, context: NSViewControllerRepresentableContext<TableVC>) {
         nsViewController.setContents(names: names)
         nsViewController.setSelectedRow(selectedRow: selectedRow)
+        nsViewController.tableView.scrollRowToVisible(selectedRow)
         return
     }
 }

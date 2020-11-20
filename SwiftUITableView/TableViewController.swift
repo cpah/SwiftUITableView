@@ -51,5 +51,9 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     func setSelectedRow(selectedRow: Int) -> Void {
         tableView.selectRowIndexes([selectedRow], byExtendingSelection: false)
     }
+    
+    func getSelectedRow() -> Int {
+        return tableView.selectedRow
+    }
 }
 
