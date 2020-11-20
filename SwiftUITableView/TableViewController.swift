@@ -8,7 +8,11 @@
 import Cocoa
 import SwiftUI
 
-class TableViewController: NSViewController {
+let newRowSelected = NotificationCenter.default
+    .publisher(for: Notification.Name("newRowSelected"))
+//var newSelectedRow = 0
+
+class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
     var names: [[String]]?
 
@@ -16,14 +20,10 @@ class TableViewController: NSViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        self.tableView.delegate = self
-        self.tableView.dataSource = self
+//        self.tableView.delegate = self
+//        self.tableView.dataSource = self
         // Do view setup here.
     }
-    
-}
-
-extension TableViewController: NSTableViewDataSource, NSTableViewDelegate {
     
     func numberOfRows(in tableView: NSTableView) -> Int {
         return names?.count ?? 0
@@ -36,9 +36,22 @@ extension TableViewController: NSTableViewDataSource, NSTableViewDelegate {
         return result
     }
     
-    func getNames(myNames: [[String]]) -> Void {
+    func tableViewSelectionDidChange(_ notification: Notification) {
+        newSelectedRow = tableView.selectedRow
+        NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: nil)
+    }
+
+    func setNames(myNames: [[String]]) -> Void {
         names = myNames
         tableView.reloadData()
+        if myNames.count == 0 && newSelectedRow >= 0 {
+            newSelectedRow = tableView.selectedRow
+            NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: nil)
+        }
+    }
+    
+    func setSelectedRow(selectedRow: Int) -> Void {
+        tableView.selectRowIndexes([selectedRow], byExtendingSelection: false)
     }
 }
 
