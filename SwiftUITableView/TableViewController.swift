@@ -10,7 +10,6 @@ import SwiftUI
 
 let newRowSelected = NotificationCenter.default
     .publisher(for: Notification.Name("newRowSelected"))
-//var newSelectedRow = 0
 
 class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
@@ -20,8 +19,6 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-//        self.tableView.delegate = self
-//        self.tableView.dataSource = self
         // Do view setup here.
     }
     

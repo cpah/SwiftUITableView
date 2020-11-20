@@ -35,11 +35,16 @@ struct ContentView: View {
             TableVC(myNames: $myNames, selectedRow: $selectedRow)
                 .frame(width: 450, height: 300)
             HStack {
-                Text("Selected Row")
-                Text("\(selectedRow)")
+                Text("Selection:")
+                if myNames.count > 0 && selectedRow >= 0 {
+                    Text(myNames[selectedRow][0] + " " + myNames[selectedRow][1])
+                } else {
+                    Text("None")
+                }
             }
         }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .padding()
         .onAppear(perform: {
             myNames = [
                 ["Chris", "Hull"],
