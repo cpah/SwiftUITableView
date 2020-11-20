@@ -9,30 +9,28 @@ import Foundation
 import SwiftUI
 import AppKit
 
-var newSelectedRow = -1
-
 struct ContentView: View {
     
-    @State private var myNames = [[String]]()
+    @State private var names = [[String]]()
     @State private var selectedRow: Int = -1
     
     var body: some View {
         VStack {
             HStack {
                 Button("Refresh") {
-                    myNames = getMyNames()
+                    names = getNames()
                     selectedRow = 0
                 }
                 Button("Clear") {
-                    myNames.removeAll()
+                    names.removeAll()
                 }
             }
-            TableVC(myNames: $myNames, selectedRow: $selectedRow)
+            TableVC(names: $names, selectedRow: $selectedRow)
                 .frame(minWidth: 450, minHeight: 200)
             HStack {
                 Text("Selection:")
-                if myNames.count > 0 && selectedRow >= 0 {
-                    Text(myNames[selectedRow][0] + " " + myNames[selectedRow][1])
+                if names.count > 0 && selectedRow >= 0 {
+                    Text(names[selectedRow][0] + " " + names[selectedRow][1])
                 } else {
                     Text("None")
                 }
@@ -41,7 +39,7 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
         .onAppear(perform: {
-            myNames = getMyNames()
+            names = getNames()
             selectedRow = 0
         })
         .onReceive(newRowSelected, perform: {_ in
@@ -52,7 +50,7 @@ struct ContentView: View {
 
 struct TableVC: NSViewControllerRepresentable {
     
-    @Binding var myNames: [[String]]
+    @Binding var names: [[String]]
     @Binding var selectedRow: Int
 
     typealias NSViewControllerType = TableViewController
@@ -63,13 +61,13 @@ struct TableVC: NSViewControllerRepresentable {
     }
         
     func updateNSViewController(_ nsViewController: TableViewController, context: NSViewControllerRepresentableContext<TableVC>) {
-        nsViewController.setNames(myNames: myNames)
+        nsViewController.setContents(names: names)
         nsViewController.setSelectedRow(selectedRow: selectedRow)
         return
     }
 }
 
-func getMyNames() -> [[String]] {
+func getNames() -> [[String]] {
     return [
         ["Alpha", "Bravo"],
         ["Charlie", "Delta"],

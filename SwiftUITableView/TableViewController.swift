@@ -8,12 +8,13 @@
 import Cocoa
 import SwiftUI
 
-let newRowSelected = NotificationCenter.default
+var newSelectedRow = -1 // Global var to share TableViewController.xib selectedRow with SwiftUUI
+let newRowSelected = NotificationCenter.default // Notification to prompt SwiftUI to update selectedRow
     .publisher(for: Notification.Name("newRowSelected"))
 
 class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
-    var names: [[String]]?
+    var contents: [[String]]?
 
     @IBOutlet weak var tableView: NSTableView!
     
@@ -23,13 +24,13 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     }
     
     func numberOfRows(in tableView: NSTableView) -> Int {
-        return names?.count ?? 0
+        return contents?.count ?? 0
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         var result: NSTableCellView
         result = tableView.makeView(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
-        result.textField?.stringValue = names?[row][Int((tableColumn?.identifier.rawValue)!)!] ?? "None"
+        result.textField?.stringValue = contents?[row][Int((tableColumn?.identifier.rawValue)!)!] ?? "None"
         return result
     }
     
@@ -38,10 +39,10 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
         NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: nil)
     }
 
-    func setNames(myNames: [[String]]) -> Void {
-        names = myNames
+    func setContents(names: [[String]]) -> Void {
+        contents = names
         tableView.reloadData()
-        if myNames.count == 0 && newSelectedRow >= 0 {
+        if names.count == 0 && newSelectedRow >= 0 {
             newSelectedRow = tableView.selectedRow
             NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: nil)
         }
