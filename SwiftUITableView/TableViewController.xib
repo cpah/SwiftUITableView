@@ -18,9 +18,8 @@
             <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <scrollView fixedFrame="YES" autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Eo-TR-LCb">
+                <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5Eo-TR-LCb">
                     <rect key="frame" x="0.0" y="0.0" width="480" height="272"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <clipView key="contentView" id="7WW-Tu-T0F">
                         <rect key="frame" x="1" y="0.0" width="478" height="271"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -118,6 +117,12 @@
                     </tableHeaderView>
                 </scrollView>
             </subviews>
+            <constraints>
+                <constraint firstItem="5Eo-TR-LCb" firstAttribute="leading" secondItem="Hz6-mo-xeY" secondAttribute="leading" id="LTa-Qa-O4e"/>
+                <constraint firstAttribute="trailing" secondItem="5Eo-TR-LCb" secondAttribute="trailing" id="O9C-3s-o2b"/>
+                <constraint firstAttribute="bottom" secondItem="5Eo-TR-LCb" secondAttribute="bottom" id="S3O-05-519"/>
+                <constraint firstItem="5Eo-TR-LCb" firstAttribute="top" secondItem="Hz6-mo-xeY" secondAttribute="top" id="mXz-Yg-pI5"/>
+            </constraints>
             <point key="canvasLocation" x="-882" y="125"/>
         </customView>
     </objects>

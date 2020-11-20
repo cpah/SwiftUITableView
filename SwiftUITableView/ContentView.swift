@@ -20,12 +20,7 @@ struct ContentView: View {
         VStack {
             HStack {
                 Button("Refresh") {
-                    myNames = [
-                        ["Chris", "Hull"],
-                        ["Lynn", "Harris"],
-                        ["Kirsty", "Chambers"],
-                        ["Caroline", "Whatman"]
-                        ]
+                    myNames = getMyNames()
                     selectedRow = 0
                 }
                 Button("Clear") {
@@ -33,7 +28,7 @@ struct ContentView: View {
                 }
             }
             TableVC(myNames: $myNames, selectedRow: $selectedRow)
-                .frame(width: 450, height: 300)
+                .frame(minWidth: 450, minHeight: 200)
             HStack {
                 Text("Selection:")
                 if myNames.count > 0 && selectedRow >= 0 {
@@ -46,12 +41,7 @@ struct ContentView: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
         .onAppear(perform: {
-            myNames = [
-                ["Chris", "Hull"],
-                ["Lynn", "Harris"],
-                ["Kirsty", "Chambers"],
-                ["Caroline", "Whatman"]
-                ]
+            myNames = getMyNames()
             selectedRow = 0
         })
         .onReceive(newRowSelected, perform: {_ in
@@ -77,6 +67,23 @@ struct TableVC: NSViewControllerRepresentable {
         nsViewController.setSelectedRow(selectedRow: selectedRow)
         return
     }
+}
+
+func getMyNames() -> [[String]] {
+    return [
+        ["Alpha", "Bravo"],
+        ["Charlie", "Delta"],
+        ["Echo", "Foxtrot"],
+        ["Golf", "Hotel"],
+        ["India", "Juliet"],
+        ["Kilo", "Lima"],
+        ["Mike", "November"],
+        ["Oscar","Papa"],
+        ["Romeo","Sierra"],
+        ["Tango","Uniform"],
+        ["Victor", "Whiskey"],
+        ["XRay", "Yankee"]
+        ]
 }
 
 struct ContentView_Previews: PreviewProvider {
