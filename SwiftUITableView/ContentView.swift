@@ -27,6 +27,9 @@ struct ContentView: View {
             }
             TableVC(names: $names, selectedRow: $selectedRow)
                 .frame(minWidth: 450, minHeight: 200)
+                .onReceive(newRowSelected, perform: {_ in
+                    selectedRow = newSelectedRow
+                })
             HStack {
                 Text("Selection:")
                 if names.count > 0 && selectedRow >= 0 {
@@ -38,9 +41,6 @@ struct ContentView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding()
-        .onReceive(newRowSelected, perform: {_ in
-            selectedRow = newSelectedRow
-        })
     }
 }
 
