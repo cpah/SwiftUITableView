@@ -33,7 +33,10 @@ struct ContentView: View {
             HStack {
                 Text("Selection:")
                 if names.count > 0 && selectedRow >= 0 {
-                    Text(names[selectedRow][0] + " " + names[selectedRow][1])
+                    HStack {
+                        Text("Row \(selectedRow + 1)")
+                    Text("(\(names[selectedRow][0]) \(names[selectedRow][1]))")
+                    }
                 } else {
                     Text("None")
                 }
@@ -74,10 +77,11 @@ func getNames() -> [[String]] {
         ["Kilo", "Lima"],
         ["Mike", "November"],
         ["Oscar","Papa"],
-        ["Romeo","Sierra"],
-        ["Tango","Uniform"],
-        ["Victor", "Whiskey"],
-        ["XRay", "Yankee"]
+        ["Quebec","Romeo"],
+        ["Sierra","Tango"],
+        ["Uniform", "Victor"],
+        ["Whiskey", "X-Ray"],
+        ["Yankee", "Zulu"]
         ]
 }
 

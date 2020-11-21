@@ -28,10 +28,10 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     }
     
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
-        var result: NSTableCellView
-        result = tableView.makeView(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
-        result.textField?.stringValue = contents?[row][Int((tableColumn?.identifier.rawValue)!)!] ?? "None"
-        return result
+        var view: NSTableCellView
+        view = tableView.makeView(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
+        view.textField?.stringValue = contents?[row][Int(tableColumn!.identifier.rawValue)!] ?? "None"
+        return view
     }
     
     func tableViewSelectionDidChange(_ notification: Notification) {
