@@ -17,7 +17,7 @@ let newRowSelected = NotificationCenter.default // Notification to prompt SwiftU
 
 class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
-    var contents: [[String]]?
+    var contents: [PayeeName]?
 
     @IBOutlet weak var tableView: NSTableView!
     
@@ -33,7 +33,11 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     func tableView(_ tableView: NSTableView, viewFor tableColumn: NSTableColumn?, row: Int) -> NSView? {
         var view: NSTableCellView
         view = tableView.makeView(withIdentifier: tableColumn!.identifier, owner: self) as! NSTableCellView
-        view.textField?.stringValue = contents?[row][Int(tableColumn!.identifier.rawValue)!] ?? "None"
+        if Int(tableColumn!.identifier.rawValue) == 0 {
+            view.textField?.stringValue = contents?[row].name ?? ""
+        } else {
+            view.textField?.stringValue = contents?[row].id.uuidString ?? ""
+        }
         return view
     }
     
@@ -42,8 +46,8 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
         NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: self, userInfo: newRowSelected)
     }
 
-    func setContents(names: [[String]]) -> Void {
-        contents = names
+    func setContents(payeeNames: [PayeeName]) -> Void {
+        contents = payeeNames
         tableView.reloadData()
     }
     

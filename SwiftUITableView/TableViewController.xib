@@ -64,7 +64,7 @@
                                         </prototypeCellViews>
                                     </tableColumn>
                                     <tableColumn identifier="1" width="230" minWidth="40" maxWidth="1000" id="ZFz-aQ-trr">
-                                        <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Last Name">
+                                        <tableHeaderCell key="headerCell" lineBreakMode="truncatingTail" borderStyle="border" title="Reference">
                                             <color key="textColor" name="headerTextColor" catalog="System" colorSpace="catalog"/>
                                             <color key="backgroundColor" name="headerColor" catalog="System" colorSpace="catalog"/>
                                         </tableHeaderCell>

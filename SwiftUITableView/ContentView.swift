@@ -9,35 +9,50 @@ import Foundation
 import SwiftUI
 import AppKit
 
+struct PayeeName: Identifiable {
+    var id = UUID()
+    var name: String
+    
+    init(name: String) {
+        self.name = name
+    }
+}
+
 struct ContentView: View {
     
-    @State private var names = [[String]]()
-    @State private var selectedRow: Int = -1
+    @State private var payeeNames = [PayeeName]()
+    @State private var selectedRow = -1
+    @State private var selectedRef: UUID? = nil
     
     var body: some View {
         VStack {
             HStack {
                 Button("Populate") {
-                    names = getNames()
-                    selectedRow = names.count - 1
+                    payeeNames = getPayeeNames()
+                    selectedRow = payeeNames.count - 1
+                    //selectedRow = -1
                 }
                 Button("Clear") {
-                    names.removeAll()
+                    payeeNames.removeAll()
                 }
             }
-            TableVC(names: $names, selectedRow: $selectedRow)
+            TableVC(payeeNames: $payeeNames, selectedRow: $selectedRow)
                 .frame(minWidth: 450, minHeight: 200)
                 .onReceive(newRowSelected, perform: {notification in
                     if let newRowSelected = notification as [String:Int]? {
                         for (_, rowSelected) in newRowSelected {selectedRow = rowSelected}
+                        selectedRef = payeeNames[selectedRow].id
                     }
                 })
+                .onAppear(perform: {
+                    payeeNames = getPayeeNames()
+                    //selectedRow = payeeNames.count - 1
+                })
             HStack {
-                Text("Selection:")
-                if names.count > 0 && selectedRow >= 0 {
+                if payeeNames.count > 0 && selectedRow >= 0 {
                     HStack {
-                        Text("Row \(selectedRow + 1)")
-                    Text("(\(names[selectedRow][0]) \(names[selectedRow][1]))")
+                        Text(payeeNames[selectedRow].name)
+                        Text(selectedRef?.uuidString ?? "Nil")
                     }
                 } else {
                     Text("None")
@@ -51,7 +66,7 @@ struct ContentView: View {
 
 struct TableVC: NSViewControllerRepresentable {
     
-    @Binding var names: [[String]]
+    @Binding var payeeNames: [PayeeName]
     @Binding var selectedRow: Int
 
     typealias NSViewControllerType = TableViewController
@@ -62,33 +77,61 @@ struct TableVC: NSViewControllerRepresentable {
     }
         
     func updateNSViewController(_ nsViewController: TableViewController, context: NSViewControllerRepresentableContext<TableVC>) {
-        nsViewController.setContents(names: names)
+        nsViewController.setContents(payeeNames: payeeNames)
         nsViewController.setSelectedRow(selectedRow: selectedRow)
         nsViewController.tableView.scrollRowToVisible(selectedRow)
         return
     }
 }
 
-func getNames() -> [[String]] {
+func getPayeeNames() -> [PayeeName] {
     return [
-        ["Alpha", "Bravo"],
-        ["Charlie", "Delta"],
-        ["Echo", "Foxtrot"],
-        ["Golf", "Hotel"],
-        ["India", "Juliet"],
-        ["Kilo", "Lima"],
-        ["Mike", "November"],
-        ["Oscar","Papa"],
-        ["Quebec","Romeo"],
-        ["Sierra","Tango"],
-        ["Uniform", "Victor"],
-        ["Whiskey", "X-Ray"],
-        ["Yankee", "Zulu"]
-        ]
+        PayeeName(name: "Alpha"),
+        PayeeName(name: "Bravo"),
+        PayeeName(name: "Charlie"),
+        PayeeName(name: "Delta"),
+        PayeeName(name: "Echo"),
+        PayeeName(name: "Foxtrot"),
+        PayeeName(name: "Golf"),
+        PayeeName(name: "Hotel"),
+        PayeeName(name: "India"),
+        PayeeName(name: "Juliet"),
+        PayeeName(name: "Kilo"),
+        PayeeName(name: "Lima"),
+        PayeeName(name: "Mike"),
+        PayeeName(name: "November"),
+        PayeeName(name: "Oscar"),
+        PayeeName(name: "Papa"),
+        PayeeName(name: "Romeo"),
+        PayeeName(name: "Sierra"),
+        PayeeName(name: "Tango"),
+        PayeeName(name: "Uniform"),
+        PayeeName(name: "Victor"),
+        PayeeName(name: "Whiskey"),
+        PayeeName(name: "X-Ray"),
+        PayeeName(name: "Yankee"),
+        PayeeName(name: "Zulu")
+    ]
 }
+
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         ContentView()
     }
+}
+
+extension ContentView {
+    
+    func getRowForRef(ref: UUID?) -> Int {
+        if ref != nil {
+            for i in 0 ..< payeeNames.count {
+                if payeeNames[i].id == ref {
+                    return i
+                }
+            }
+        }
+        return -1
+    }
+
 }
