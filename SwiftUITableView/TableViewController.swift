@@ -6,11 +6,14 @@
 //
 
 import Cocoa
+import Combine
 import SwiftUI
 
-var newSelectedRow = -1 // Global var to share TableViewController.xib selectedRow with SwiftUUI
 let newRowSelected = NotificationCenter.default // Notification to prompt SwiftUI to update selectedRow
     .publisher(for: Notification.Name("newRowSelected"))
+    .map { notification in
+        return notification.userInfo as! [String: Int]
+    }
 
 class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
@@ -35,17 +38,13 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     }
     
     func tableViewSelectionDidChange(_ notification: Notification) {
-        newSelectedRow = tableView.selectedRow
-        NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: nil)
+        let newRowSelected = ["": tableView.selectedRow]
+        NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: self, userInfo: newRowSelected)
     }
 
     func setContents(names: [[String]]) -> Void {
         contents = names
         tableView.reloadData()
-        if names.count == 0 && newSelectedRow >= 0 {
-            newSelectedRow = tableView.selectedRow
-            NotificationCenter.default.post(name: Notification.Name("newRowSelected"), object: nil)
-        }
     }
     
     func setSelectedRow(selectedRow: Int) -> Void {

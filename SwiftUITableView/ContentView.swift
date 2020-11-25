@@ -27,8 +27,10 @@ struct ContentView: View {
             }
             TableVC(names: $names, selectedRow: $selectedRow)
                 .frame(minWidth: 450, minHeight: 200)
-                .onReceive(newRowSelected, perform: {_ in
-                    selectedRow = newSelectedRow
+                .onReceive(newRowSelected, perform: {notification in
+                    if let newRowSelected = notification as [String:Int]? {
+                        for (_, rowSelected) in newRowSelected {selectedRow = rowSelected}
+                    }
                 })
             HStack {
                 Text("Selection:")
