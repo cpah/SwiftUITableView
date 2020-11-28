@@ -50,7 +50,8 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     }
 
     func setContents(payeeNodes: [PayeeNode]) -> Void {
-        if payeeNodes.count == 0 {
+        contents = payeeNodes
+        if contents.count == 0 {
             arrayController.removeSelectionIndexes([0])
             let newSelectedPayeeNode = ["":nil] as [String : Any?]
             NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: newSelectedPayeeNode as [AnyHashable : Any])
@@ -59,8 +60,6 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
             tableView.selectRowIndexes([payeeNodes.count - 1], byExtendingSelection: false)
             tableView.scrollRowToVisible(tableView.selectedRow)
         }
-        contents = payeeNodes
-        tableView.reloadData()
     }
     
     func setSelectionIndex(selectedIndex: Int) -> Void {
