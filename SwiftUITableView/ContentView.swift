@@ -12,11 +12,9 @@ import AppKit
 class PayeeNode: NSObject, Identifiable {
     @objc dynamic var id = UUID()
     @objc dynamic var name: String
-    @objc dynamic var idString: String
     
     init(name: String) {
         self.name = name
-        self.idString = id.uuidString
     }
 }
 
