@@ -39,7 +39,7 @@ struct ContentView: View {
             TableVC(payeeNodes: $payeeNodes)
                 .frame(minWidth: 450, minHeight: 200)
                 .onReceive(newPayeeNodeSelected, perform: {notification in
-                    if let newSelectedPayeeNode = notification as [String:PayeeNode?]? {
+                    if let newSelectedPayeeNode = notification as? [Int:PayeeNode?] {
                         for (_, selectedPayeeNode) in newSelectedPayeeNode {
                             selectedName = selectedPayeeNode?.name ?? ""
                             selectedRef = selectedPayeeNode?.id ?? nil
@@ -47,7 +47,7 @@ struct ContentView: View {
                     }
                 })
                 .onReceive(payeeNodeEdited, perform: { notification in
-                    if let payeeNodeEdited = notification as [String:String]? {
+                    if let payeeNodeEdited = notification as! [Int:String]? {
                         for (_, newSelectedName) in payeeNodeEdited {
                             selectedName = newSelectedName
                         }

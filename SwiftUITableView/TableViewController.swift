@@ -5,6 +5,7 @@
 //  Created by cpahull on 15/11/2020.
 //
 
+import Foundation
 import Cocoa
 //import Combine
 //import SwiftUI
@@ -12,12 +13,12 @@ import Cocoa
 let newPayeeNodeSelected = NotificationCenter.default // Notification to prompt SwiftUI to update selectedRow
     .publisher(for: Notification.Name("newPayeeNodeSelected"))
     .map { notification in
-        return notification.userInfo as [String: PayeeNode?]
+        return notification.userInfo
     }
 let payeeNodeEdited = NotificationCenter.default // Notification to prompt SwiftUI to update selectedRow
     .publisher(for: Notification.Name("payeeNodeEdited"))
     .map { notification in
-        return notification.userInfo as [String: String]
+        return notification.userInfo
     }
 
 class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
@@ -35,16 +36,16 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
     @IBAction func nameCellEdited(_ sender: Any) {
         if let newPayeeNode = arrayController.selectedObjects[0] as? PayeeNode {
             contents[arrayController.selectionIndex].name = newPayeeNode.name
-            NotificationCenter.default.post(name: Notification.Name("payeeNodeEdited"), object: self, userInfo: ["":newPayeeNode.name])
+            NotificationCenter.default.post(name: Notification.Name("payeeNodeEdited"), object: self, userInfo: [arrayController.selectionIndex:newPayeeNode.name])
         }
     }
 
     func tableViewSelectionDidChange(_ notification: Notification) {
-        var newSelectedPayeeNode: [String:PayeeNode?]
+        var newSelectedPayeeNode: [AnyHashable : Any?]
         if arrayController.selectionIndexes.count > 0 {
-            newSelectedPayeeNode = ["":arrayController.selectedObjects[0] as? PayeeNode]
+            newSelectedPayeeNode = [arrayController.selectionIndex:arrayController.selectedObjects[0]]
         } else {
-            newSelectedPayeeNode = ["":nil]
+            newSelectedPayeeNode = [0:nil]
         }
         NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: newSelectedPayeeNode as [AnyHashable : Any])
     }
