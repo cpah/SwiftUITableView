@@ -23,18 +23,26 @@ struct ContentView: View {
     @State private var payeeNodes = [PayeeNode]()
     @State private var selectedName = ""
     @State private var selectedRef: UUID? = nil
+    @State private var initialRef: UUID? = nil
     
     var body: some View {
         VStack {
             HStack {
                 Button("Populate") {
                     payeeNodes = getpayeeNodes()
+                    initialRef = nil
                 }
                 Button("Clear") {
                     payeeNodes.removeAll()
+                    initialRef = nil
                 }
+                Button("Delete") {
+                    payeeNodes.remove(at: getRowForSelectedRef(selectedRef: selectedRef))
+                    initialRef = nil
+                }
+                .disabled(selectedRef == nil)
             }
-            TableVC(payeeNodes: $payeeNodes)
+            TableVC(payeeNodes: $payeeNodes, initialRef: $initialRef)
                 .frame(minWidth: 450, minHeight: 200)
                 .onReceive(newPayeeNodeSelected, perform: {notification in
                     if let newSelectedPayeeNode = notification as? [Int:PayeeNode?] {
@@ -52,7 +60,8 @@ struct ContentView: View {
                     }
                 })
                 .onAppear(perform: {
-                    //payeeNodes = getpayeeNodes()
+                    payeeNodes = getpayeeNodes()
+                    initialRef = payeeNodes[payeeNodes.count - 1].id
                 })
             HStack {
                 HStack {
@@ -69,7 +78,8 @@ struct ContentView: View {
 struct TableVC: NSViewControllerRepresentable {
     
     @Binding var payeeNodes: [PayeeNode]
-
+    @Binding var initialRef: UUID?
+    
     typealias NSViewControllerType = TableViewController
     
     func makeNSViewController(context: NSViewControllerRepresentableContext<TableVC>) -> TableViewController {
@@ -79,8 +89,26 @@ struct TableVC: NSViewControllerRepresentable {
         
     func updateNSViewController(_ nsViewController: TableViewController, context: NSViewControllerRepresentableContext<TableVC>) {
         nsViewController.setContents(payeeNodes: payeeNodes)
+        if initialRef != nil {
+            let initialIndex = getRowForSelectedRef(selectedRef: initialRef)
+            nsViewController.arrayController.setSelectionIndex(initialIndex)
+            nsViewController.tableView.scrollRowToVisible(initialIndex)
+            NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: [initialIndex:payeeNodes[initialIndex]] as [AnyHashable : Any])
+        }
         return
     }
+    
+    func getRowForSelectedRef(selectedRef: UUID?) -> Int {
+        if selectedRef != nil {
+            for i in 0 ..< payeeNodes.count {
+                if payeeNodes[i].id == selectedRef {
+                    return i
+                }
+            }
+        }
+        return -1
+    }
+
 }
 
 func getpayeeNodes() -> [PayeeNode] {
@@ -113,19 +141,12 @@ func getpayeeNodes() -> [PayeeNode] {
     ]
 }
 
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        ContentView()
-    }
-}
-
 extension ContentView {
     
-    func getRowForRef(ref: UUID?) -> Int {
-        if ref != nil {
+    func getRowForSelectedRef(selectedRef: UUID?) -> Int {
+        if selectedRef != nil {
             for i in 0 ..< payeeNodes.count {
-                if payeeNodes[i].id == ref {
+                if payeeNodes[i].id == selectedRef {
                     return i
                 }
             }
@@ -133,4 +154,10 @@ extension ContentView {
         return -1
     }
 
+}
+
+struct ContentView_Previews: PreviewProvider {
+    static var previews: some View {
+        ContentView()
+    }
 }

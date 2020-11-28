@@ -42,25 +42,19 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
 
     func tableViewSelectionDidChange(_ notification: Notification) {
         var newSelectedPayeeNode: [AnyHashable : Any?]
-        if arrayController.selectionIndexes.count > 0 {
-            newSelectedPayeeNode = [arrayController.selectionIndex:arrayController.selectedObjects[0]]
+        if tableView.selectedRow >= 0 {
+            newSelectedPayeeNode = [tableView.selectedRow:arrayController.selectedObjects[0]]
         } else {
-            newSelectedPayeeNode = [0:nil]
+            newSelectedPayeeNode = [tableView.selectedRow:nil]
         }
         NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: newSelectedPayeeNode as [AnyHashable : Any])
     }
 
     func setContents(payeeNodes: [PayeeNode]) -> Void {
         contents = payeeNodes
-        if contents.count == 0 {
-            arrayController.removeSelectionIndexes([0])
-            let newSelectedPayeeNode = ["":nil] as [String : Any?]
-            NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: newSelectedPayeeNode as [AnyHashable : Any])
-        } else {
-            arrayController.setSelectionIndex(payeeNodes.count - 1)
-            tableView.selectRowIndexes([payeeNodes.count - 1], byExtendingSelection: false)
-            tableView.scrollRowToVisible(tableView.selectedRow)
-        }
+        arrayController.removeSelectionIndexes([0])
+        let newSelectedPayeeNode = [-1:nil] as [Int : Any?]
+        NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: newSelectedPayeeNode as [AnyHashable : Any])
     }
     
     func setSelectionIndex(selectedIndex: Int) -> Void {
