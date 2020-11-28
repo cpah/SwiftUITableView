@@ -9,53 +9,57 @@ import Foundation
 import SwiftUI
 import AppKit
 
-struct PayeeName: Identifiable {
-    var id = UUID()
-    var name: String
+class PayeeNode: NSObject, Identifiable {
+    @objc dynamic var id = UUID()
+    @objc dynamic var name: String
+    @objc dynamic var idString: String
     
     init(name: String) {
         self.name = name
+        self.idString = id.uuidString
     }
 }
 
 struct ContentView: View {
-    
-    @State private var payeeNames = [PayeeName]()
-    @State private var selectedRow = -1
+        
+    @State private var payeeNodes = [PayeeNode]()
+    @State private var selectedName = ""
     @State private var selectedRef: UUID? = nil
     
     var body: some View {
         VStack {
             HStack {
                 Button("Populate") {
-                    payeeNames = getPayeeNames()
-                    selectedRow = payeeNames.count - 1
-                    //selectedRow = -1
+                    payeeNodes = getpayeeNodes()
                 }
                 Button("Clear") {
-                    payeeNames.removeAll()
+                    payeeNodes.removeAll()
                 }
             }
-            TableVC(payeeNames: $payeeNames, selectedRow: $selectedRow)
+            TableVC(payeeNodes: $payeeNodes)
                 .frame(minWidth: 450, minHeight: 200)
-                .onReceive(newRowSelected, perform: {notification in
-                    if let newRowSelected = notification as [String:Int]? {
-                        for (_, rowSelected) in newRowSelected {selectedRow = rowSelected}
-                        selectedRef = payeeNames[selectedRow].id
+                .onReceive(newPayeeNodeSelected, perform: {notification in
+                    if let newSelectedPayeeNode = notification as [String:PayeeNode?]? {
+                        for (_, selectedPayeeNode) in newSelectedPayeeNode {
+                            selectedName = selectedPayeeNode?.name ?? ""
+                            selectedRef = selectedPayeeNode?.id ?? nil
+                        }
+                    }
+                })
+                .onReceive(payeeNodeEdited, perform: { notification in
+                    if let payeeNodeEdited = notification as [String:String]? {
+                        for (_, newSelectedName) in payeeNodeEdited {
+                            selectedName = newSelectedName
+                        }
                     }
                 })
                 .onAppear(perform: {
-                    payeeNames = getPayeeNames()
-                    //selectedRow = payeeNames.count - 1
+                    //payeeNodes = getpayeeNodes()
                 })
             HStack {
-                if payeeNames.count > 0 && selectedRow >= 0 {
-                    HStack {
-                        Text(payeeNames[selectedRow].name)
-                        Text(selectedRef?.uuidString ?? "Nil")
-                    }
-                } else {
-                    Text("None")
+                HStack {
+                Text(selectedName)
+                Text(selectedRef?.uuidString ?? "Nil")
                 }
             }
         }
@@ -66,8 +70,7 @@ struct ContentView: View {
 
 struct TableVC: NSViewControllerRepresentable {
     
-    @Binding var payeeNames: [PayeeName]
-    @Binding var selectedRow: Int
+    @Binding var payeeNodes: [PayeeNode]
 
     typealias NSViewControllerType = TableViewController
     
@@ -77,40 +80,38 @@ struct TableVC: NSViewControllerRepresentable {
     }
         
     func updateNSViewController(_ nsViewController: TableViewController, context: NSViewControllerRepresentableContext<TableVC>) {
-        nsViewController.setContents(payeeNames: payeeNames)
-        nsViewController.setSelectedRow(selectedRow: selectedRow)
-        nsViewController.tableView.scrollRowToVisible(selectedRow)
+        nsViewController.setContents(payeeNodes: payeeNodes)
         return
     }
 }
 
-func getPayeeNames() -> [PayeeName] {
+func getpayeeNodes() -> [PayeeNode] {
     return [
-        PayeeName(name: "Alpha"),
-        PayeeName(name: "Bravo"),
-        PayeeName(name: "Charlie"),
-        PayeeName(name: "Delta"),
-        PayeeName(name: "Echo"),
-        PayeeName(name: "Foxtrot"),
-        PayeeName(name: "Golf"),
-        PayeeName(name: "Hotel"),
-        PayeeName(name: "India"),
-        PayeeName(name: "Juliet"),
-        PayeeName(name: "Kilo"),
-        PayeeName(name: "Lima"),
-        PayeeName(name: "Mike"),
-        PayeeName(name: "November"),
-        PayeeName(name: "Oscar"),
-        PayeeName(name: "Papa"),
-        PayeeName(name: "Romeo"),
-        PayeeName(name: "Sierra"),
-        PayeeName(name: "Tango"),
-        PayeeName(name: "Uniform"),
-        PayeeName(name: "Victor"),
-        PayeeName(name: "Whiskey"),
-        PayeeName(name: "X-Ray"),
-        PayeeName(name: "Yankee"),
-        PayeeName(name: "Zulu")
+        PayeeNode(name: "Alpha"),
+        PayeeNode(name: "Bravo"),
+        PayeeNode(name: "Charlie"),
+        PayeeNode(name: "Delta"),
+        PayeeNode(name: "Echo"),
+        PayeeNode(name: "Foxtrot"),
+        PayeeNode(name: "Golf"),
+        PayeeNode(name: "Hotel"),
+        PayeeNode(name: "India"),
+        PayeeNode(name: "Juliet"),
+        PayeeNode(name: "Kilo"),
+        PayeeNode(name: "Lima"),
+        PayeeNode(name: "Mike"),
+        PayeeNode(name: "November"),
+        PayeeNode(name: "Oscar"),
+        PayeeNode(name: "Papa"),
+        PayeeNode(name: "Romeo"),
+        PayeeNode(name: "Sierra"),
+        PayeeNode(name: "Tango"),
+        PayeeNode(name: "Uniform"),
+        PayeeNode(name: "Victor"),
+        PayeeNode(name: "Whiskey"),
+        PayeeNode(name: "X-Ray"),
+        PayeeNode(name: "Yankee"),
+        PayeeNode(name: "Zulu")
     ]
 }
 
@@ -125,8 +126,8 @@ extension ContentView {
     
     func getRowForRef(ref: UUID?) -> Int {
         if ref != nil {
-            for i in 0 ..< payeeNames.count {
-                if payeeNames[i].id == ref {
+            for i in 0 ..< payeeNodes.count {
+                if payeeNodes[i].id == ref {
                     return i
                 }
             }
