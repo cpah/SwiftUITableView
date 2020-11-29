@@ -32,10 +32,12 @@ struct ContentView: View {
                     payeeNodes = getpayeeNodes()
                     initialRef = nil
                 }
+                .disabled(payeeNodes.count > 0)
                 Button("Clear") {
                     payeeNodes.removeAll()
                     initialRef = nil
                 }
+                .disabled(payeeNodes.count == 0)
                 Button("Delete") {
                     payeeNodes.remove(at: getRowForSelectedRef(selectedRef: selectedRef))
                     initialRef = nil
@@ -56,6 +58,7 @@ struct ContentView: View {
                     if let payeeNodeEdited = notification as! [Int:String]? {
                         for (_, newSelectedName) in payeeNodeEdited {
                             selectedName = newSelectedName
+                            payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name = newSelectedName
                         }
                     }
                 })
@@ -95,7 +98,6 @@ struct TableVC: NSViewControllerRepresentable {
             nsViewController.tableView.scrollRowToVisible(initialIndex)
             NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: [initialIndex:payeeNodes[initialIndex]] as [AnyHashable : Any])
         }
-        return
     }
     
     func getRowForSelectedRef(selectedRef: UUID?) -> Int {
