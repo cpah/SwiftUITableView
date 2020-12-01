@@ -10,8 +10,8 @@ import SwiftUI
 import AppKit
 
 class PayeeNode: NSObject, Identifiable {
-    @objc dynamic var id = UUID()
-    @objc dynamic var name: String
+    @objc var id = UUID()
+    @objc var name: String
     
     init(name: String) {
         self.name = name
@@ -47,18 +47,19 @@ struct ContentView: View {
             TableVC(payeeNodes: $payeeNodes, initialRef: $initialRef)
                 .frame(minWidth: 450, minHeight: 200)
                 .onReceive(newPayeeNodeSelected, perform: {notification in
-                    if let newSelectedPayeeNode = notification as? [Int:PayeeNode?] {
+                    if let newSelectedPayeeNode = notification { //as? [Int:PayeeNode?] {
                         for (_, selectedPayeeNode) in newSelectedPayeeNode {
-                            selectedName = selectedPayeeNode?.name ?? ""
-                            selectedRef = selectedPayeeNode?.id ?? nil
+                            let payeeNodeSelected = selectedPayeeNode as? PayeeNode
+                            selectedName = payeeNodeSelected?.name ?? ""
+                            selectedRef = payeeNodeSelected?.id ?? nil
                         }
                     }
                 })
                 .onReceive(payeeNodeEdited, perform: { notification in
-                    if let payeeNodeEdited = notification as! [Int:String]? {
+                    if let payeeNodeEdited = notification {//as! [Int:String]? {
                         for (_, newSelectedName) in payeeNodeEdited {
-                            selectedName = newSelectedName
-                            payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name = newSelectedName
+                            selectedName = newSelectedName as! String
+                            payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name = newSelectedName as! String
                         }
                     }
                 })
