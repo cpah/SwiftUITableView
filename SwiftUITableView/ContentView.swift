@@ -68,6 +68,7 @@ struct ContentView: View {
                     }
                 })
                 .onReceive(clearedCellToggled, perform: { _ in
+                    if selectedRef == nil {return}
                     selectedCleared =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].cleared == true ? "True":"False"
                 })
                 .onAppear(perform: {
