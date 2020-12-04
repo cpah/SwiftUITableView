@@ -15,11 +15,15 @@ let newPayeeNodeSelected = NotificationCenter.default // Notification to prompt 
     .map { notification in
         return notification.userInfo
     }
+
 let payeeNodeEdited = NotificationCenter.default // Notification to prompt SwiftUI to update selectedRow
     .publisher(for: Notification.Name("payeeNodeEdited"))
     .map { notification in
         return notification.userInfo
     }
+
+let clearedCellToggled = NotificationCenter.default // Notification to prompt SwiftUI to update selectedRow
+    .publisher(for: Notification.Name("clearedCellToggled"))
 
 class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewDelegate {
     
@@ -39,7 +43,10 @@ class TableViewController: NSViewController, NSTableViewDataSource, NSTableViewD
             NotificationCenter.default.post(name: Notification.Name("payeeNodeEdited"), object: self, userInfo: [arrayController.selectionIndex:newPayeeNode.name])
         }
     }
-
+    @IBAction func clearedCellToggled(_ sender: Any) {
+        NotificationCenter.default.post(name: Notification.Name("clearedCellToggled"), object: self)
+    }
+    
     func tableViewSelectionDidChange(_ notification: Notification) {
         var newSelectedPayeeNode: [AnyHashable : Any?]
         if tableView.selectedRow >= 0 {

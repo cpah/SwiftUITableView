@@ -12,9 +12,11 @@ import AppKit
 class PayeeNode: NSObject, Identifiable {
     @objc var id = UUID()
     @objc var name: String
+    @objc var cleared: Bool
     
-    init(name: String) {
+    init(name: String, cleared: Bool) {
         self.name = name
+        self.cleared = cleared
     }
 }
 
@@ -24,6 +26,7 @@ struct ContentView: View {
     @State private var selectedName = ""
     @State private var selectedRef: UUID? = nil
     @State private var initialRef: UUID? = nil
+    @State private var selectedCleared = ""
     
     var body: some View {
         VStack {
@@ -52,6 +55,7 @@ struct ContentView: View {
                             let payeeNodeSelected = selectedPayeeNode as? PayeeNode
                             selectedName = payeeNodeSelected?.name ?? ""
                             selectedRef = payeeNodeSelected?.id ?? nil
+                            selectedCleared = payeeNodeSelected?.cleared == true ? "True":"False"
                         }
                     }
                 })
@@ -63,14 +67,18 @@ struct ContentView: View {
                         }
                     }
                 })
+                .onReceive(clearedCellToggled, perform: { _ in
+                    selectedCleared =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].cleared == true ? "True":"False"
+                })
                 .onAppear(perform: {
                     payeeNodes = getpayeeNodes()
                     initialRef = payeeNodes[payeeNodes.count - 1].id
                 })
             HStack {
                 HStack {
-                Text(selectedName)
-                Text(selectedRef?.uuidString ?? "Nil")
+                    Text(selectedName)
+                    Text(selectedRef?.uuidString ?? "Nil")
+                    Text(selectedCleared)
                 }
             }
         }
@@ -116,31 +124,31 @@ struct TableVC: NSViewControllerRepresentable {
 
 func getpayeeNodes() -> [PayeeNode] {
     return [
-        PayeeNode(name: "Alpha"),
-        PayeeNode(name: "Bravo"),
-        PayeeNode(name: "Charlie"),
-        PayeeNode(name: "Delta"),
-        PayeeNode(name: "Echo"),
-        PayeeNode(name: "Foxtrot"),
-        PayeeNode(name: "Golf"),
-        PayeeNode(name: "Hotel"),
-        PayeeNode(name: "India"),
-        PayeeNode(name: "Juliet"),
-        PayeeNode(name: "Kilo"),
-        PayeeNode(name: "Lima"),
-        PayeeNode(name: "Mike"),
-        PayeeNode(name: "November"),
-        PayeeNode(name: "Oscar"),
-        PayeeNode(name: "Papa"),
-        PayeeNode(name: "Romeo"),
-        PayeeNode(name: "Sierra"),
-        PayeeNode(name: "Tango"),
-        PayeeNode(name: "Uniform"),
-        PayeeNode(name: "Victor"),
-        PayeeNode(name: "Whiskey"),
-        PayeeNode(name: "X-Ray"),
-        PayeeNode(name: "Yankee"),
-        PayeeNode(name: "Zulu")
+        PayeeNode(name: "Alpha", cleared: false),
+        PayeeNode(name: "Bravo", cleared: false),
+        PayeeNode(name: "Charlie", cleared: false),
+        PayeeNode(name: "Delta", cleared: false),
+        PayeeNode(name: "Echo", cleared: false),
+        PayeeNode(name: "Foxtrot", cleared: false),
+        PayeeNode(name: "Golf", cleared: false),
+        PayeeNode(name: "Hotel", cleared: false),
+        PayeeNode(name: "India", cleared: false),
+        PayeeNode(name: "Juliet", cleared: false),
+        PayeeNode(name: "Kilo", cleared: false),
+        PayeeNode(name: "Lima", cleared: false),
+        PayeeNode(name: "Mike", cleared: true),
+        PayeeNode(name: "November", cleared: false),
+        PayeeNode(name: "Oscar", cleared: false),
+        PayeeNode(name: "Papa", cleared: false),
+        PayeeNode(name: "Romeo", cleared: false),
+        PayeeNode(name: "Sierra", cleared: false),
+        PayeeNode(name: "Tango", cleared: false),
+        PayeeNode(name: "Uniform", cleared: false),
+        PayeeNode(name: "Victor", cleared: false),
+        PayeeNode(name: "Whiskey", cleared: false),
+        PayeeNode(name: "X-Ray", cleared: false),
+        PayeeNode(name: "Yankee", cleared: false),
+        PayeeNode(name: "Zulu", cleared: false)
     ]
 }
 
