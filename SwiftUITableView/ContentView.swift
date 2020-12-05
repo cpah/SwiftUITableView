@@ -55,17 +55,17 @@ struct ContentView: View {
                             let payeeNodeSelected = selectedPayeeNode as? PayeeNode
                             selectedName = payeeNodeSelected?.name ?? ""
                             selectedRef = payeeNodeSelected?.id ?? nil
+                            if payeeNodeSelected != nil {
                             selectedCleared = payeeNodeSelected?.cleared == true ? "True":"False"
+                            } else {
+                                selectedCleared = ""
+                            }
                         }
                     }
                 })
-                .onReceive(payeeNodeEdited, perform: { notification in
-                    if let payeeNodeEdited = notification {//as! [Int:String]? {
-                        for (_, newSelectedName) in payeeNodeEdited {
-                            selectedName = newSelectedName as! String
-                            payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name = newSelectedName as! String
-                        }
-                    }
+                .onReceive(payeeNodeEdited, perform: { _ in
+                    if selectedRef == nil {return}
+                    selectedName =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name
                 })
                 .onReceive(clearedCellToggled, perform: { _ in
                     if selectedRef == nil {return}
@@ -106,7 +106,6 @@ struct TableVC: NSViewControllerRepresentable {
             let initialIndex = getRowForSelectedRef(selectedRef: initialRef)
             nsViewController.arrayController.setSelectionIndex(initialIndex)
             nsViewController.tableView.scrollRowToVisible(initialIndex)
-            NotificationCenter.default.post(name: Notification.Name("newPayeeNodeSelected"), object: self, userInfo: [initialIndex:payeeNodes[initialIndex]] as [AnyHashable : Any])
         }
     }
     
