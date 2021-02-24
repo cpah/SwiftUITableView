@@ -29,57 +29,59 @@ struct ContentView: View {
     @State private var selectedCleared = ""
     
     var body: some View {
-        VStack {
-            HStack {
-                Button("Populate") {
-                    payeeNodes = getpayeeNodes()
-                    initialRef = nil
+        HSplitView {
+            VStack {
+                HStack {
+                    Button("Populate") {
+                        payeeNodes = getpayeeNodes()
+                        initialRef = nil
+                    }
+                    .disabled(payeeNodes.count > 0)
+                    Button("Clear") {
+                        payeeNodes.removeAll()
+                        initialRef = nil
+                    }
+                    .disabled(payeeNodes.count == 0)
+                    Button("Delete") {
+                        payeeNodes.remove(at: getRowForSelectedRef(selectedRef: selectedRef))
+                        initialRef = nil
+                    }
+                    .disabled(selectedRef == nil)
                 }
-                .disabled(payeeNodes.count > 0)
-                Button("Clear") {
-                    payeeNodes.removeAll()
-                    initialRef = nil
-                }
-                .disabled(payeeNodes.count == 0)
-                Button("Delete") {
-                    payeeNodes.remove(at: getRowForSelectedRef(selectedRef: selectedRef))
-                    initialRef = nil
-                }
-                .disabled(selectedRef == nil)
-            }
-            TableVC(payeeNodes: $payeeNodes, initialRef: $initialRef)
-                .frame(minWidth: 450, minHeight: 200)
-                .onReceive(newPayeeNodeSelected, perform: {notification in
-                    if let newSelectedPayeeNode = notification { //as? [Int:PayeeNode?] {
-                        for (_, selectedPayeeNode) in newSelectedPayeeNode {
-                            let payeeNodeSelected = selectedPayeeNode as? PayeeNode
-                            selectedName = payeeNodeSelected?.name ?? ""
-                            selectedRef = payeeNodeSelected?.id ?? nil
-                            if payeeNodeSelected != nil {
-                            selectedCleared = payeeNodeSelected?.cleared == true ? "True":"False"
-                            } else {
-                                selectedCleared = ""
+                TableVC(payeeNodes: $payeeNodes, initialRef: $initialRef)
+                    .frame(minWidth: 450, minHeight: 200)
+                    .onReceive(newPayeeNodeSelected, perform: {notification in
+                        if let newSelectedPayeeNode = notification { //as? [Int:PayeeNode?] {
+                            for (_, selectedPayeeNode) in newSelectedPayeeNode {
+                                let payeeNodeSelected = selectedPayeeNode as? PayeeNode
+                                selectedName = payeeNodeSelected?.name ?? ""
+                                selectedRef = payeeNodeSelected?.id ?? nil
+                                if payeeNodeSelected != nil {
+                                selectedCleared = payeeNodeSelected?.cleared == true ? "True":"False"
+                                } else {
+                                    selectedCleared = ""
+                                }
                             }
                         }
-                    }
-                })
-                .onReceive(payeeNodeEdited, perform: { _ in
-                    if selectedRef == nil {return}
-                    selectedName =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name
-                })
-                .onReceive(clearedCellToggled, perform: { _ in
-                    if selectedRef == nil {return}
-                    selectedCleared =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].cleared == true ? "True":"False"
-                })
-                .onAppear(perform: {
-                    payeeNodes = getpayeeNodes()
-                    initialRef = payeeNodes[payeeNodes.count - 1].id
-                })
-            HStack {
+                    })
+                    .onReceive(payeeNodeEdited, perform: { _ in
+                        if selectedRef == nil {return}
+                        selectedName =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name
+                    })
+                    .onReceive(clearedCellToggled, perform: { _ in
+                        if selectedRef == nil {return}
+                        selectedCleared =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].cleared == true ? "True":"False"
+                    })
+                    .onAppear(perform: {
+                        payeeNodes = getpayeeNodes()
+                        //initialRef = payeeNodes[payeeNodes.count - 1].id
+                    })
                 HStack {
-                    Text(selectedName)
-                    Text(selectedRef?.uuidString ?? "Nil")
-                    Text(selectedCleared)
+                    HStack {
+                        Text(selectedName)
+                        Text(selectedRef?.uuidString ?? "Nil")
+                        Text(selectedCleared)
+                    }
                 }
             }
         }
