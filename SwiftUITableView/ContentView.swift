@@ -23,64 +23,47 @@ class PayeeNode: NSObject, Identifiable {
 struct ContentView: View {
         
     @State private var payeeNodes = [PayeeNode]()
+    @State private var rowSelected = -1
     @State private var selectedName = ""
     @State private var selectedRef: UUID? = nil
-    @State private var initialRef: UUID? = nil
-    @State private var selectedCleared = ""
+    @State private var selectedCleared = false
     
     var body: some View {
-        HSplitView {
+        HSplitView { // Placing top level view inside a SplitView prevents this runtime warning: SwiftUITableView[9921:321879] [General] ERROR: Setting <_TtC7SwiftUIP33_9FEBA96B0BC70E1682E82D239F242E7319SwiftUIAppKitButton: 0x7fd4bd919d60> as the first responder for window <NSWindow: 0x7fd4bd904db0>, but it is in a different window ((null))! This would eventually crash when the view is freed. The first responder will be set to nil.
             VStack {
                 HStack {
-                    Button("Populate") {
-                        payeeNodes = getpayeeNodes()
-                        initialRef = nil
-                    }
-                    .disabled(payeeNodes.count > 0)
                     Button("Clear") {
                         payeeNodes.removeAll()
-                        initialRef = nil
+                        rowSelected = -1
                     }
                     .disabled(payeeNodes.count == 0)
-                    Button("Delete") {
-                        payeeNodes.remove(at: getRowForSelectedRef(selectedRef: selectedRef))
-                        initialRef = nil
+                    Button("Populate") { // reloads payeenodes and preselects last item
+                        payeeNodes = getpayeeNodes()
+                        rowSelected = payeeNodes.count - 1
+                        selectedRef = payeeNodes[rowSelected].id
+                        selectedName = payeeNodes[rowSelected].name
+                        selectedCleared = payeeNodes[rowSelected].cleared
                     }
-                    .disabled(selectedRef == nil)
+                    .disabled(payeeNodes.count > 0)
+                    Button("Delete") {
+                        payeeNodes.remove(at: rowSelected)
+                        rowSelected = -1
+                    }
+                    .disabled(rowSelected == -1)
                 }
-                TableVC(payeeNodes: $payeeNodes, initialRef: $initialRef)
+                TableVC(payeeNodes: $payeeNodes, rowSelected: $rowSelected, selectedName: $selectedName, selectedCleared: $selectedCleared)
                     .frame(minWidth: 450, minHeight: 200)
-                    .onReceive(newPayeeNodeSelected, perform: {notification in
-                        if let newSelectedPayeeNode = notification { //as? [Int:PayeeNode?] {
-                            for (_, selectedPayeeNode) in newSelectedPayeeNode {
-                                let payeeNodeSelected = selectedPayeeNode as? PayeeNode
-                                selectedName = payeeNodeSelected?.name ?? ""
-                                selectedRef = payeeNodeSelected?.id ?? nil
-                                if payeeNodeSelected != nil {
-                                selectedCleared = payeeNodeSelected?.cleared == true ? "True":"False"
-                                } else {
-                                    selectedCleared = ""
-                                }
-                            }
-                        }
-                    })
-                    .onReceive(payeeNodeEdited, perform: { _ in
-                        if selectedRef == nil {return}
-                        selectedName =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].name
-                    })
-                    .onReceive(clearedCellToggled, perform: { _ in
-                        if selectedRef == nil {return}
-                        selectedCleared =  payeeNodes[getRowForSelectedRef(selectedRef: selectedRef)].cleared == true ? "True":"False"
-                    })
                     .onAppear(perform: {
                         payeeNodes = getpayeeNodes()
-                        //initialRef = payeeNodes[payeeNodes.count - 1].id
                     })
                 HStack {
-                    HStack {
+                    if rowSelected >= 0 {
                         Text(selectedName)
-                        Text(selectedRef?.uuidString ?? "Nil")
-                        Text(selectedCleared)
+                        Text(payeeNodes[rowSelected].id.uuidString)
+                        Text(selectedCleared == true ? "True":"False")
+                    }
+                    else {
+                        Text("None")
                     }
                 }
             }
@@ -93,35 +76,62 @@ struct ContentView: View {
 struct TableVC: NSViewControllerRepresentable {
     
     @Binding var payeeNodes: [PayeeNode]
-    @Binding var initialRef: UUID?
+    @Binding var rowSelected: Int
+    @Binding var selectedName: String
+    @Binding var selectedCleared: Bool
     
-    typealias NSViewControllerType = TableViewController
-    
-    func makeNSViewController(context: NSViewControllerRepresentableContext<TableVC>) -> TableViewController {
+    func makeNSViewController(context: Context) -> NSViewController {
         let tableVC = TableViewController()
         return tableVC
     }
         
-    func updateNSViewController(_ nsViewController: TableViewController, context: NSViewControllerRepresentableContext<TableVC>) {
-        nsViewController.setContents(payeeNodes: payeeNodes)
-        if initialRef != nil {
-            let initialIndex = getRowForSelectedRef(selectedRef: initialRef)
-            nsViewController.arrayController.setSelectionIndex(initialIndex)
-            nsViewController.tableView.scrollRowToVisible(initialIndex)
+    func updateNSViewController(_ nsViewController: NSViewController, context: Context) {
+        guard let tableVC = nsViewController as? TableViewController else {return}
+        tableVC.setContents(payeeNodes: payeeNodes)
+        tableVC.tableView?.delegate = context.coordinator
+        guard rowSelected >= 0 else {
+            tableVC.arrayController.removeSelectionIndexes([0])
+            return
         }
+        tableVC.arrayController.setSelectionIndex(rowSelected)
+        tableVC.tableView.scrollRowToVisible(rowSelected)
     }
     
-    func getRowForSelectedRef(selectedRef: UUID?) -> Int {
-        if selectedRef != nil {
-            for i in 0 ..< payeeNodes.count {
-                if payeeNodes[i].id == selectedRef {
-                    return i
-                }
-            }
+    class Coordinator: NSObject, NSTableViewDelegate {
+        
+        var parent: TableVC
+        
+        init(_ parent: TableVC) {
+            self.parent = parent
         }
-        return -1
-    }
+        
+        func tableViewSelectionDidChange(_ notification: Notification) {
+            guard let tableView = notification.object as? NSTableView else {return}
+            guard self.parent.payeeNodes.count > 0 else {return}
+            guard tableView.selectedRow >= 0 else {
+                self.parent.rowSelected = -1
+                return
+            }
+            self.parent.rowSelected = tableView.selectedRow
+            self.parent.selectedName = self.parent.payeeNodes[tableView.selectedRow].name
+            self.parent.selectedCleared = self.parent.payeeNodes[tableView.selectedRow].cleared
+        }
 
+        @IBAction func nameCellEdited(_ sender: Any) {
+            guard let textView = sender as? NSTextField else {return}
+            self.parent.selectedName = textView.stringValue
+        }
+        
+        @IBAction func clearedCellToggled(_ sender: Any) {
+            guard self.parent.rowSelected >= 0 else {return}
+            self.parent.selectedCleared = self.parent.payeeNodes[self.parent.rowSelected].cleared
+        }
+        
+    }
+    
+    func makeCoordinator() -> Coordinator {
+        return Coordinator(self)
+    }
 }
 
 func getpayeeNodes() -> [PayeeNode] {
@@ -142,6 +152,7 @@ func getpayeeNodes() -> [PayeeNode] {
         PayeeNode(name: "November", cleared: false),
         PayeeNode(name: "Oscar", cleared: false),
         PayeeNode(name: "Papa", cleared: false),
+        PayeeNode(name: "Quebec", cleared: false),
         PayeeNode(name: "Romeo", cleared: false),
         PayeeNode(name: "Sierra", cleared: false),
         PayeeNode(name: "Tango", cleared: false),
@@ -152,21 +163,6 @@ func getpayeeNodes() -> [PayeeNode] {
         PayeeNode(name: "Yankee", cleared: false),
         PayeeNode(name: "Zulu", cleared: false)
     ]
-}
-
-extension ContentView {
-    
-    func getRowForSelectedRef(selectedRef: UUID?) -> Int {
-        if selectedRef != nil {
-            for i in 0 ..< payeeNodes.count {
-                if payeeNodes[i].id == selectedRef {
-                    return i
-                }
-            }
-        }
-        return -1
-    }
-
 }
 
 struct ContentView_Previews: PreviewProvider {
