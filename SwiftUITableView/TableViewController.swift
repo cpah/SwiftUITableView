@@ -10,7 +10,7 @@ import Cocoa
 
 final class TableViewController: NSViewController {
     
-    @objc dynamic var contents: [PayeeNode] = []
+    @objc dynamic var contents: [Item] = []
 
     @IBOutlet weak var tableView: NSTableView!
     @IBOutlet var arrayController: NSArrayController!
@@ -24,8 +24,8 @@ final class TableViewController: NSViewController {
     
     @IBAction func clearedCellToggled(_ sender: Any) {} // stub for delegate
 
-    func setContents(payeeNodes: [PayeeNode]) -> Void {
-        contents = payeeNodes
+    func setContents(items: [Item]) -> Void {
+        contents = items
     }
     
 }

@@ -9,7 +9,7 @@ import Foundation
 import SwiftUI
 import AppKit
 
-class PayeeNode: NSObject, Identifiable {
+class Item: NSObject, Identifiable {
     @objc var id = UUID()
     @objc var name: String
     @objc var cleared: Bool
@@ -22,7 +22,7 @@ class PayeeNode: NSObject, Identifiable {
 
 struct ContentView: View {
         
-    @State private var payeeNodes = [PayeeNode]()
+    @State private var items = [Item]()
     @State private var rowSelected = -1
     @State private var selectedName = ""
     @State private var selectedRef: UUID? = nil
@@ -33,33 +33,33 @@ struct ContentView: View {
             VStack {
                 HStack {
                     Button("Clear") {
-                        payeeNodes.removeAll()
+                        items.removeAll()
                         rowSelected = -1
                     }
-                    .disabled(payeeNodes.count == 0)
-                    Button("Populate") { // reloads payeenodes and preselects last item
-                        payeeNodes = getpayeeNodes()
-                        rowSelected = payeeNodes.count - 1
-                        selectedRef = payeeNodes[rowSelected].id
-                        selectedName = payeeNodes[rowSelected].name
-                        selectedCleared = payeeNodes[rowSelected].cleared
+                    .disabled(items.count == 0)
+                    Button("Populate") { // reloads items and preselects last item
+                        items = getitems()
+                        rowSelected = items.count - 1
+                        selectedRef = items[rowSelected].id
+                        selectedName = items[rowSelected].name
+                        selectedCleared = items[rowSelected].cleared
                     }
-                    .disabled(payeeNodes.count > 0)
+                    .disabled(items.count > 0)
                     Button("Delete") {
-                        payeeNodes.remove(at: rowSelected)
+                        items.remove(at: rowSelected)
                         rowSelected = -1
                     }
                     .disabled(rowSelected == -1)
                 }
-                TableVC(payeeNodes: $payeeNodes, rowSelected: $rowSelected, selectedName: $selectedName, selectedCleared: $selectedCleared)
+                TableVC(items: $items, rowSelected: $rowSelected, selectedName: $selectedName, selectedCleared: $selectedCleared)
                     .frame(minWidth: 450, minHeight: 200)
                     .onAppear(perform: {
-                        payeeNodes = getpayeeNodes()
+                        items = getitems()
                     })
                 HStack {
                     if rowSelected >= 0 {
                         Text(selectedName)
-                        Text(payeeNodes[rowSelected].id.uuidString)
+                        Text(items[rowSelected].id.uuidString)
                         Text(selectedCleared == true ? "True":"False")
                     }
                     else {
@@ -75,7 +75,7 @@ struct ContentView: View {
 
 struct TableVC: NSViewControllerRepresentable {
     
-    @Binding var payeeNodes: [PayeeNode]
+    @Binding var items: [Item]
     @Binding var rowSelected: Int
     @Binding var selectedName: String
     @Binding var selectedCleared: Bool
@@ -87,7 +87,7 @@ struct TableVC: NSViewControllerRepresentable {
         
     func updateNSViewController(_ nsViewController: NSViewController, context: Context) {
         guard let tableVC = nsViewController as? TableViewController else {return}
-        tableVC.setContents(payeeNodes: payeeNodes)
+        tableVC.setContents(items: items)
         tableVC.tableView?.delegate = context.coordinator
         guard rowSelected >= 0 else {
             tableVC.arrayController.removeSelectionIndexes([0])
@@ -107,14 +107,14 @@ struct TableVC: NSViewControllerRepresentable {
         
         func tableViewSelectionDidChange(_ notification: Notification) {
             guard let tableView = notification.object as? NSTableView else {return}
-            guard self.parent.payeeNodes.count > 0 else {return}
+            guard self.parent.items.count > 0 else {return}
             guard tableView.selectedRow >= 0 else {
                 self.parent.rowSelected = -1
                 return
             }
             self.parent.rowSelected = tableView.selectedRow
-            self.parent.selectedName = self.parent.payeeNodes[tableView.selectedRow].name
-            self.parent.selectedCleared = self.parent.payeeNodes[tableView.selectedRow].cleared
+            self.parent.selectedName = self.parent.items[tableView.selectedRow].name
+            self.parent.selectedCleared = self.parent.items[tableView.selectedRow].cleared
         }
 
         @IBAction func nameCellEdited(_ sender: Any) {
@@ -124,7 +124,7 @@ struct TableVC: NSViewControllerRepresentable {
         
         @IBAction func clearedCellToggled(_ sender: Any) {
             guard self.parent.rowSelected >= 0 else {return}
-            self.parent.selectedCleared = self.parent.payeeNodes[self.parent.rowSelected].cleared
+            self.parent.selectedCleared = self.parent.items[self.parent.rowSelected].cleared
         }
         
     }
@@ -134,34 +134,34 @@ struct TableVC: NSViewControllerRepresentable {
     }
 }
 
-func getpayeeNodes() -> [PayeeNode] {
+func getitems() -> [Item] {
     return [
-        PayeeNode(name: "Alpha", cleared: false),
-        PayeeNode(name: "Bravo", cleared: false),
-        PayeeNode(name: "Charlie", cleared: false),
-        PayeeNode(name: "Delta", cleared: false),
-        PayeeNode(name: "Echo", cleared: false),
-        PayeeNode(name: "Foxtrot", cleared: false),
-        PayeeNode(name: "Golf", cleared: false),
-        PayeeNode(name: "Hotel", cleared: false),
-        PayeeNode(name: "India", cleared: false),
-        PayeeNode(name: "Juliet", cleared: false),
-        PayeeNode(name: "Kilo", cleared: false),
-        PayeeNode(name: "Lima", cleared: false),
-        PayeeNode(name: "Mike", cleared: true),
-        PayeeNode(name: "November", cleared: false),
-        PayeeNode(name: "Oscar", cleared: false),
-        PayeeNode(name: "Papa", cleared: false),
-        PayeeNode(name: "Quebec", cleared: false),
-        PayeeNode(name: "Romeo", cleared: false),
-        PayeeNode(name: "Sierra", cleared: false),
-        PayeeNode(name: "Tango", cleared: false),
-        PayeeNode(name: "Uniform", cleared: false),
-        PayeeNode(name: "Victor", cleared: false),
-        PayeeNode(name: "Whiskey", cleared: false),
-        PayeeNode(name: "X-Ray", cleared: false),
-        PayeeNode(name: "Yankee", cleared: false),
-        PayeeNode(name: "Zulu", cleared: false)
+        Item(name: "Alpha", cleared: false),
+        Item(name: "Bravo", cleared: false),
+        Item(name: "Charlie", cleared: false),
+        Item(name: "Delta", cleared: false),
+        Item(name: "Echo", cleared: false),
+        Item(name: "Foxtrot", cleared: false),
+        Item(name: "Golf", cleared: false),
+        Item(name: "Hotel", cleared: false),
+        Item(name: "India", cleared: false),
+        Item(name: "Juliet", cleared: false),
+        Item(name: "Kilo", cleared: false),
+        Item(name: "Lima", cleared: false),
+        Item(name: "Mike", cleared: true),
+        Item(name: "November", cleared: false),
+        Item(name: "Oscar", cleared: false),
+        Item(name: "Papa", cleared: false),
+        Item(name: "Quebec", cleared: false),
+        Item(name: "Romeo", cleared: false),
+        Item(name: "Sierra", cleared: false),
+        Item(name: "Tango", cleared: false),
+        Item(name: "Uniform", cleared: false),
+        Item(name: "Victor", cleared: false),
+        Item(name: "Whiskey", cleared: false),
+        Item(name: "X-Ray", cleared: false),
+        Item(name: "Yankee", cleared: false),
+        Item(name: "Zulu", cleared: false)
     ]
 }
 
