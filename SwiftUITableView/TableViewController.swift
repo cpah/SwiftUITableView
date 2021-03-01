@@ -8,7 +8,7 @@
 import Foundation
 import Cocoa
 
-final class TableViewController: NSViewController {
+class TableViewController: NSViewController {
     
     @objc dynamic var contents: [Item] = []
 
